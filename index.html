@@ -5,25 +5,54 @@
             var p18=Math.PI/180
             //script
             var fireworks=[]
+            var lt=0
             var fps=60
             var cv=document.getElementById("BOX")
             var ctx=cv.getContext("2d")
             var tick=0
+            ctx.globalCompositeOperation = "lighter";
             function dl(color,lw,pos){
                 //console.log(arguments,pos)
                 //ctx.fillstyle=color
                 //ctx.arc(pos[0],pos[1],lw/2,0,2*Math.PI)
                 //ctx.arc(pos[pos.length-2],pos[pos.length-1],lw/2,0,2*Math.PI)
                 //ctx.fill()
-                ctx.beginPath()
+                //ctx.beginPath()
                 ctx.strokeStyle=color
+                ctx.fillStyle=color
                 ctx.lineWidth=lw
-                ctx.moveTo(pos[0],pos[1])
-                
-                for(var x=2;x<pos.length;x+=2){
-                    ctx.lineTo(pos[x],pos[x+1])    
+                //ctx.moveTo(pos[0],pos[1])
+                for(var x=pos.length-2;x>=2;x-=2){
+                    //ctx.arc(pos[x],pos[x+1],1,0,2*Math.PI)
+                    lw-=.5;
+                    if(lw<=0)
+                    return
+                    ctx.lineWidth=lw;
+                    ctx.beginPath()
+                    ctx.moveTo(pos[x-2],pos[x-1])
+                    ctx.lineTo(pos[x],pos[x+1])
+                    ctx.stroke()
                 }
-                ctx.stroke()
+                //ctx.closePath()
+            }
+            function bg(){
+                let a=ctx.createImageData(300,300);
+                let b= new Uint32Array(a,a.buffer);
+                var i=0;
+                for(var y=0;y<100;y++){
+                    for(var x=0;x<100;x++){
+                        c=[0,0,0,255];
+                        for(var s=0;s<fireworks.length;s++){
+                            fire=fireworks[s]
+                            //for(var j=0;j<3;j++){
+                            //    c[j]=fire.color[j]*((y-fire.y)**2+(x-fire.x)**2)**.5;
+                                //console.log(c)
+                            //}
+                        }
+                        b[i++]=`rgba(${this.c.join(",")})`;
+                    }
+                }
+                ctx.putImageData(a,0,0);
             }
             function fireworkfunc1(type,branch){
                 switch(type){
@@ -31,7 +60,7 @@
                         //console.log("n")
                         function a1(){
                             var on=0
-                            v=1000
+                            v=2000+Math.random()*2000
                             var c=branch
                                 on=1
                                 var n=0
@@ -43,7 +72,7 @@
                                     }else{
                                         v*=1.5
                                     }
-                                    new_firework(this.x,this.y,this.vx+v*Math.sin(x*(360/c)*p18),this.vy-v*Math.cos(x*(360/c)*p18),980,[Math.random()*255,Math.random()*255,Math.random()*255,1],function(){return this.t>=fps*2},function(){this.color[3]/=1.1},15,.97) 
+                                    new_firework(this.x,this.y,this.vx+v*Math.sin(x*(360/c)*p18),this.vy-v*Math.cos(x*(360/c)*p18),980,[Math.random()*255,Math.random()*255,Math.random()*255,1],function(){return this.t>=fps*.5},function(){this.color[3]/=1.3},15,.001) 
                                 }
                             }
                         }  
@@ -52,7 +81,7 @@
                     case "exp":
                         function a2(){
                             var on=0
-                            v=3000
+                            v=4000+Math.random()*1000
                             var c=branch
                                 on=1
                                 var n=0
@@ -60,7 +89,7 @@
                             if(on){
                                 for (var y=1;y<6;y++){
                                     for(var x=n;x<c;x++){
-                                        new_firework(this.x,this.y,this.vx+v/3*y*Math.sin(x*(360/c)*p18),this.vy-v/3*y*Math.cos(x*(360/c)*p18),98,[Math.random()*255,Math.random()*255,Math.random()*255,1],function(){return this.t>=fps*2},function(){this.color[3]/=1.1},20,.96) 
+                                        new_firework(this.x,this.y,this.vx+v/3*y*Math.sin(x*(360/c)*p18),this.vy-v/3*y*Math.cos(x*(360/c)*p18),980,[Math.random()*255,Math.random()*255,Math.random()*255,1],function(){return this.t>=fps*.75},function(){if((this.t)%10>=5){this.color[3]*=0.7}else{this.color[3]/=0.8}},20,.005) 
                                     }
                                 }
                             }
@@ -70,15 +99,22 @@
                     case "n^2":
                         function a3(){
                             var on=0
-                            v=10000
+                            v=5000
                             var c=branch
                                 on=1
                                 var n=0
                                 this.dis=true
                             if(on){
                                 for (var y=1;y<2;y++){
-                                    for(var x=n;x<c;x++){
-                                        new_firework(this.x,this.y,this.vx+v/3*y*Math.sin(x*(360/c)*p18),this.vy-v/3*y*Math.cos(x*(360/c)*p18),98,[Math.random()*255,Math.random()*255,Math.random()*255,1],function(){return this.t>=fps*2},function(){
+                                    for(var q=n;q<c;q++){
+                                        //console.log()
+                                        new_firework(this.x,this.y,this.vx+v/3*y*Math.sin(q*(360/c)*p18),this.vy-v/3*y*Math.cos(q*(360/c)*p18),0,[Math.random()*255,Math.random()*255,Math.random()*255,1],
+                                        function(){
+                                            var tq=Math.random()
+                                            //console.log(tq);
+                                            return this.t>=(fps*1+tq*60)
+                                        },
+                                        function(){
                                             var on=0
                                                 v=3000
                                                 var c=branch/2
@@ -86,13 +122,23 @@
                                                     var n=0
                                                     this.dis=true
                                                 if(on){
-                                                    for (var y=1;y<2;y++){
-                                                        for(var x=n;x<c;x++){
-                                                            new_firework(this.x,this.y,this.vx+v/3*y*Math.sin(x*(360/c)*p18),this.vy-v/3*y*Math.cos(x*(360/c)*p18),98,[Math.random()*255,Math.random()*255,Math.random()*255,1],function(){return this.t>=fps*2},function(){this.color[3]/=1.1},20,.96) 
+                                                    for (var z=1;z<2;z++){
+                                                        for(var o=n;o<c;o++){
+                                                            new_firework(this.x,this.y,this.vx+v/3*y*Math.sin(o*(360/c)*p18),this.vy-v/3*y*Math.cos(o*(360/c)*p18),98,[Math.random()*255,Math.random()*255,Math.random()*255,1],
+                                                            function(){
+                                                                return this.t>=fps*1+Math.random()*10
+                                                            },function(){
+                                                                this.t+=Math.random()*tick
+                                                                if((this.t)%20>=9){
+                                                                   this.color[3]*=0.7
+                                                                }else{
+                                                                  this.color[3]/=0.71
+                                                                }
+                                                            },20,.1) 
                                                         }
                                                     }
                                                 }
-                                        },20,.96) 
+                                        },20,.1) 
                                     }
                                 }
                             }
@@ -152,22 +198,43 @@
                     this.t+=1;
                     this.x+=this.vx/fps
                     this.y+=this.vy/fps
+                    this.buffer=this.af**(1/fps)
                     this.vy+=this.g/fps
-                    this.vx*=this.af
-                    this.vy*=this.af
+                    this.vx*=this.buffer
+                    this.vy*=this.buffer
                     this.apos.push(this.x)
                     this.apos.push(this.y)
                     //console.log(this.color.join(","))
+                    this.grad=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,1000);
+                    this.buffer=[...this.color]
+                    for(var i=0;i<1;i+=.3){
+                        const distSqr = (i*5) ** 2+1;
+                        const ref = .5/ distSqr;
+                        for(var n=0;n<4;n++){
+                            this.buffer[n]*=ref;
+                        }
+                        //this.buffer[3]*=(1-i)
+                        this.grad.addColorStop(i,`rgba(${this.buffer.join(",")})`);
+                        //if(i==0)console.log(this.color[3])
+                    }
+                    this.grad.addColorStop(1,"#0000")
+                    ctx.fillStyle=this.grad;
+                    ctx.beginPath();
+                    ctx.arc(this.x,this.y,1000,0,Math.PI*2);
+                    ctx.fill();
                     dl(`rgba(${this.color.join(",")})`,5,this.apos)
                     this.buffer=[...this.color]
                     this.buffer[3]/=4
                     dl(`rgba(${this.buffer.join(",")})`,10,this.apos)
+                    //this.buffer=[...this.color]
+                    //this.buffer[3]/=16
+                    //dl(`rgba(${this.buffer.join(",")})`,20,this.apos)
+                    //this.buffer=[...this.color]
+                    //this.buffer[3]/=64
+                    //dl(`rgba(${this.buffer.join(",")})`,40,this.apos)
                     this.buffer=[...this.color]
-                    this.buffer[3]/=16
-                    dl(`rgba(${this.buffer.join(",")})`,20,this.apos)
-                    this.buffer=[...this.color]
-                    this.buffer[3]/=64
-                    dl(`rgba(${this.buffer.join(",")})`,40,this.apos)
+                    this.buffer[3]/=256
+                    dl(`rgba(${this.buffer.join(",")})`,80,this.apos)
                     if(this.apos.length>this.tl){
                         this.apos.splice(0,2)
                     }
@@ -215,42 +282,50 @@
                     }   
                 }
             )
-            new_firework(2000,2250,1,-2000,980,[0,255,255,1],
+            new_firework(2000,2250,50,-1500,980,[0,255,255,1],
                 function() {
                     //console.log(this.t)
                     //return this.t==1.5*fps
                     if(this.tae==undefined){
-                        console.log("asdsa")
+                        //console.log("asdsa")
                         this.tae=0
                     }
                     //console.log(this.tae)
                     this.tae=this.tae*1+1
                     return this.vy>=0
                 },
-                fireworkfunc1("n^2",32))
+                fireworkfunc1("n^2",16))
             console.log(fireworks)
+            setInterval(sub,1000/60);
+            function sub(){
+                tick++
+            }
             function main(){
-                tick++;
-                if (tick%25==0){
-                        new_firework(Math.random()*4000,2250,1,-500+Math.random()*-1500,980,[0,255,255,1],
+                //console.log(tick-lt)
+                //fps=200/tick-lt
+                //tick++;
+                var r=Math.random()
+                if (tick%(80)==0){
+                        new_firework(Math.random()*4000,2250,Math.random()*500-250,-1200+Math.random()*-800,980,r>.07?[0,255,255,1]:[0,255,0,1],
                             function() {
                             //console.log(this.t)
                             //return this.t==1.5*fps
                             if(this.tae==undefined){
-                                console.log("asdsa")
+                                //console.log("asdsa")
                                 this.tae=0
                             }
                             //console.log(this.tae)
                             this.tae=this.tae*1+1
                             return this.vy>=0
                         },
-                        fireworkfunc1(Math.random()>.1?"n":"exp",32)
+                        fireworkfunc1(r>.07?"n":"exp",32),30
                     )
                 }
                 //console.log(window.innerWidth,cv.style.width)
                 cv.style.width=`${parseInt(window.innerWidth)}px`
                 cv.style.height=`${parseInt(window.innerHeight)}px`
                 ctx.clearRect(0,0,cv.width,cv.height)
+                //bg()
                 fireworks.forEach((e,a)=>{
                     if(e.dis){
                         fireworks.splice(a,1)
@@ -258,8 +333,10 @@
                         e.start()
                     }
                 })
+                console.log("a")
+                lt=tick
             }
-            setInterval(main,1000/fps)
+            setInterval(main,1000/60)
             
         </script>
     </body>
